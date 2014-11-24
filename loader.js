@@ -1,6 +1,6 @@
 (function loadSectionHarvester() {
-	if (mw.config.get('wgNamespace') !== -1) {
-		// SpecialPage namespace, language independent
+	if (mw.config.get('wgNamespace') !== null) {
+		// SpecialPage namespace is -1, but blank page seems to have NULL namespace...
 		return;
 	}
 	var pageName = mw.config.get('wgPageName').split(':');
