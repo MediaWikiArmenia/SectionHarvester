@@ -8,7 +8,7 @@
 		// No page specified
 		return;
 	}
-	if (pageName[1] !== 'SectionHarvester') {
+	if (pageName[1] !== 'BlankPage/SectionHarvester') {
 		// Different Special Page
 		return;
 	}
