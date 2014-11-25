@@ -13,7 +13,7 @@ $(function () {
 		$button: $('<button disabled="disabled">'),
 		$status: $('<div style="background:#EEE;padding:5px 10px;text-align: center">'),
 		$warnings: $('<div style="background:#EED;padding:5px 10px; display:none"><h2>Warnings</h2></div>'),
-		$sections: $('<div style="background:#EED;padding:5px 10px; display:none"><h2>Sections</h2><table><thead><tr><td>Section name</td><td>Pages</td></tr></thead></table></div>'),
+		$sections: $('<div style="background:#DED;padding:5px 10px; display:none"><h2>Sections</h2><table><thead><tr><td>Section name</td><td>Pages</td></tr></thead></table></div>'),
 		$sectionsTBody: $('<tbody></tbody>'),
 		init: function () {
 			// TODO: i18n
@@ -138,17 +138,7 @@ $(function () {
 		var urlArray = UI.getInputValue().substr(6).split(':'); // find namespace colon
 		var url = decodeURIComponent(urlArray[1]);
 		UI.setStatus('Fetching list of pages...'); //TODO: i18n
-		getPagesRecursive(url).then(function (pages) {
-			pages.map(function (page) {
-				// TODO: temporarily print the page titles
-				//	UI.$body.append('<p>#' + page.pageid + ' - ' + page.title + '</p>');
-			});
-			UI.setStatus('Fetching page contents...');
-			var pageids = pages.map(function (p) {
-				return p.pageid;
-			}).join('|');
-			return getPageContentsRecursive(pageids);
-		}).then(function (pages) {
+		getPageContentsRecursive(url).then(function (pages) {
 			fetchedPages = pages;
 			Object.keys(fetchedPages).map(scanPage);
 			return true;
@@ -207,47 +197,27 @@ $(function () {
 
 		return endTagEnd;
 	};
-	var getPagesRecursive = function (url, queryContinue) {
+	var getPageContentsRecursive = function (url, queryContinue) {
 		var deferred = $.Deferred();
 		var getObject = {
 			"action": "query",
-			"list": "allpages",
-			"aplimit": "500",
-			"format": "json",
-			"apprefix": url,
-			"apnamespace": proofreadNamespaces.page.id
-		};
-		getObject = $.extend(getObject, queryContinue || {});
-		$.get('/w/api.php', getObject).success(function (d) {
-			if (d["query-continue"]) {
-				// not all results have been received
-				// add the value of .query-continue.allpages to the query next time
-				getPagesRecursive(url, d["query-continue"].allpages).then(function (allpages) {
-					deferred.resolve(d.query.allpages.concat(allpages));
-				});
-			} else {
-				deferred.resolve(d.query.allpages);
-			}
-		});
-		return deferred;
-	};
-
-	var getPageContentsRecursive = function (pageids, queryContinue) {
-		var deferred = $.Deferred();
-		var getObject = {
-			"action": "query",
+			"generator": "allpages",
+			"gaplimit": "50",
+			"gapprefix": url,
+			"gapnamespace": proofreadNamespaces.page.id,
 			"prop": "revisions",
 			"rvprop": "content",
-			"format": "json",
-			"pageids": pageids
+			"format": "json"
 		};
 		getObject = $.extend(getObject, queryContinue || {});
 		$.get('/w/api.php', getObject).success(function (d) {
 			if (d["query-continue"]) {
 				// not all results have been received
-				// add the value of .query-continue.allpages to the query next time
-				getPageContentsRecursive(pageids, d["query-continue"].revisions).then(function (pages) {
-					deferred.resolve(d.query.pages.concat(pages));
+				// add the values of
+				// .query-continue.allpages and .query-continue.revisions
+				// to the query next time [we're using generators!]
+				getPageContentsRecursive(url, $.extend(d["query-continue"].allpages, d["query-continue"].revisions)).then(function (pages) {
+					deferred.resolve($.extend(pages, d.query.pages));
 				});
 			} else {
 				deferred.resolve(d.query.pages);
