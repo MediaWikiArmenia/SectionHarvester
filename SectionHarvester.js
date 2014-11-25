@@ -57,6 +57,7 @@ $(function () {
 		},
 		showSections: function () {
 			var sortedKeys = Object.keys(foundSections).sort(function (a, b) {
+				// TODO: sort according to the real pages!
 				a = a.toLowerCase();
 				b = b.toLowerCase();
 				if (a < b) return -1;
@@ -102,6 +103,7 @@ $(function () {
 			if (!foundSections[sectionName]) {
 				foundSections[sectionName] = [];
 			}
+			// TODO: hold section contents!!!
 			foundSections[sectionName].push(pageId);
 		},
 		betweenSections: function (pageId, content) {
@@ -143,11 +145,14 @@ $(function () {
 			Object.keys(fetchedPages).map(scanPage);
 			return true;
 		}).then(function () {
+			// TODO: section validation
 			UI.showSections();
 			UI.setStatus('Ready! Harvested sections are below.');
 		});
 	};
 	var scanPage = function (id) {
+		// TODO: process only pages with numeric titles: .djvu/\d+
+		// otherwise show an error.
 		UI.setStatus('Scanning page:' + fetchedPages[id].title);
 		var content = fetchedPages[id].revisions[0]['*'];
 		var offset = 0;
@@ -233,3 +238,5 @@ $(function () {
 		alert('Cannot use Wikisource API');
 	});
 });
+
+// TODO: CSV format: sectionName / firstPage / lastPage
