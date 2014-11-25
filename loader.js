@@ -13,7 +13,7 @@
 		return;
 	}
 
-	// TODO: where we should put this JS so it is accessible from all language editions
+	// TODO: we should put this JS on Meta so it is easily accessible from all language editions
 	importScript('User:HrantKhachatrian/SectionHarvester.js');
 
 })();
