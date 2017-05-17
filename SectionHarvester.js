@@ -26,7 +26,7 @@ $(function () {
 			UI.$input.on('keyup', UI.validateInput);
 
 			UI.$button.appendTo(UI.$body);
-			UI.$button.text('Harvest!');
+			UI.$button.text('Harvest sections');
 
 			UI.$button.click(harvestSections);
 
@@ -78,6 +78,10 @@ $(function () {
 	var validateURL = function (url) {
 		// TODO: validate! - only current wikisource!
 		return url.match(/^https?:\/\/[a-z-]+.wikisource.org\/wiki\/.+/) !== null;
+	};
+	var preprocessContent = function (content) {
+		//stripping out noincludes and what's inside
+		return content.replace(/<noinclude>(.|\n)*?<\/noinclude>/g, '');  
 	};
 	var PageValidator = {
 		beforeFirstSection: function (pageId, content) {
@@ -155,6 +159,9 @@ $(function () {
 		// otherwise show an error.
 		UI.setStatus('Scanning page:' + fetchedPages[id].title);
 		var content = fetchedPages[id].revisions[0]['*'];
+		console.log(content);//TEMP
+		content = preprocessContent (content); //TODO: make this one liner by merging with string above
+		console.log(content);//TEMP		
 		var offset = 0;
 		fetchedPages[id].foundSections = -1;
 		do {
