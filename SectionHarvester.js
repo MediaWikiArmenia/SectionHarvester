@@ -223,12 +223,12 @@ $(function () {
 		};
 		getObject = $.extend(getObject, queryContinue || {});
 		$.get('/w/api.php', getObject).success(function (d) {
-			if (d["query-continue"]) {
+			if (d["continue"]) {
 				// not all results have been received
 				// add the values of
 				// .query-continue.allpages and .query-continue.revisions
 				// to the query next time [we're using generators!]
-				getPageContentsRecursive(url, $.extend(d["query-continue"].allpages, d["query-continue"].revisions)).then(function (pages) {
+				getPageContentsRecursive(url, $.extend(getObject, d["continue"])).then(function (pages) {
 					deferred.resolve($.extend(pages, d.query.pages));
 				});
 			} else {
