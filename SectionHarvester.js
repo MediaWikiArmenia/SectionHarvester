@@ -140,12 +140,30 @@ $(function () {
 		});
 		return deferred;
 	};
+		
+	var convertPageIDtoPageNum = function (obj) {
+		var curPageNum = 0;
+		var PageNumObject={};
+		$.each(obj, function (pageid, values) {
+			curPageNum = values.title.substring(values.title.search('/')+1); // To-Do this string is so not 2017
+
+			if (typeof values.revisions !== "undefined" && values.revisions.missing!=="") {				
+				PageNumObject[curPageNum]=values;
+			} else {
+				PageNumObject[curPageNum] = ''; //We want to have all the page num objects, so if there's no page we use empty string
+			}
+		});
+		return PageNumObject;
+	}
+	
 	var harvestSections = function () {
 		var urlArray = UI.getInputValue().substr(6).split(':'); // find namespace colon
 		var url = decodeURIComponent(urlArray[1]);
 		UI.setStatus('Fetching list of pages...'); //TODO: i18n
 		getPageContentsRecursive(url).then(function (pages) {
-			fetchedPages = pages;
+			fetchedPages = convertPageIDtoPageNum(pages);
+			//console.log(pages);
+			//console.log(fetchedPages);
 			Object.keys(fetchedPages).map(scanPage);
 			return true;
 		}).then(function () {
@@ -159,9 +177,9 @@ $(function () {
 		// otherwise show an error.
 		UI.setStatus('Scanning page:' + fetchedPages[id].title);
 		var content = fetchedPages[id].revisions[0]['*'];
-		console.log(content);//TEMP
+		//console.log(content);//TEMP
 		content = preprocessContent (content); //TODO: make this one liner by merging with string above
-		console.log(content);//TEMP		
+		//console.log(content);//TEMP		
 		var offset = 0;
 		fetchedPages[id].foundSections = -1;
 		do {
